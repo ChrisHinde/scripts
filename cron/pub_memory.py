@@ -17,7 +17,7 @@ for line in mem.stdout.splitlines():
         grps = m.groups()
         label = grps[0][:-1].lower()
         
-        data = { 'total': int(grps[1]), 'used': int(grps[2]), 'free': int(grps[3]) }
+        data = { 'total': int(grps[1]), 'used': int(grps[2]), 'free': int(grps[3]), 'unit': unit }
         
         if label == 'mem':
             data['shared'] = int(grps[4])
