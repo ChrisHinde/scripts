@@ -16,7 +16,7 @@ if u is not None:
     grps = u.groups()
 
     upt = { 'uptime': grps[0].replace('  ',' '), 'users': grps[1] }
-    usg = { '1min': grps[2], '5min': grps[3], '15min': grps[4] }
+    usg = { '1min': float(grps[2]), '5min': float(grps[3]), '15min': float(grps[4]) }
 
     msg = json.dumps(usg)
     subprocess.run([cmd,'-t',topic_usg,'-m',msg])

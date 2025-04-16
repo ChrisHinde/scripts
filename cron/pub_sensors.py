@@ -13,8 +13,8 @@ for line in sens.stdout.splitlines():
         s = re.search(r'([\w\s]+):\s+(\+[0-9]+[.][0-9]+)', line)
 
         id = s.groups()[0]
-        temp = s.groups()[1]
+        temp = float(s.groups()[1])
 
         id = re.sub(r'(\s+[id]*\s?)', '_', id)
 
-        subprocess.run([cmd,'-t',topic+id,'-m',temp])
+        subprocess.run([cmd,'-t',topic+id,'-m',str(temp)])
