@@ -10,7 +10,7 @@ topic_upt = "system/stats/uptime"
 
 up = subprocess.run(['uptime'], capture_output=True, text=True)
 
-u = re.search(r'up (.*),\s+(\d+) users,[\w\s]+:\s+([0-9]+[.][0-9]+)*,\s+([0-9]+[.][0-9]+)*,\s+([0-9]+[.][0-9]+)*', up.stdout)
+u = re.search(r'up (.*),\s+(\d+) user[s]?,[\w\s]+:\s+([0-9]+[.][0-9]+)*,\s+([0-9]+[.][0-9]+)*,\s+([0-9]+[.][0-9]+)*', up.stdout)
 
 if u is not None:
     grps = u.groups()
