@@ -27,3 +27,7 @@ uptime:
     topic: 'stats/uptime'
   usage:
     topic: 'stats/usage'
+
+sensors:
+  topic: 'sensors/temperatures'
+  combine: True

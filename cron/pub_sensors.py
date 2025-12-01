@@ -2,14 +2,13 @@
 
 import subprocess
 import json
-import re
+import re   
 
-pub_individually = False
+from config import Config
 
-cmd = "mosquitto_pub"
-topic = "system/sensors/temperatures/"
-
-data = {}
+topic = Config.t('sensors','sensors/temperatures')
+combine = Config.v('sensors.combine', True)
+combined = {}
 
 sens = subprocess.run(['sensors'], capture_output=True, text=True)
 
@@ -22,10 +21,12 @@ for line in sens.stdout.splitlines():
 
         id = re.sub(r'(\s+[id]*\s?)', '_', id)
 
-        data[id] = temp
+        if combine:
+            combined[id] = temp
+        else:
+            ex = Config.cmd('sensors', topic + '/' + id, str(temp))
+            subprocess.run(ex)
 
-        if pub_individually:
-            subprocess.run([cmd,'-t',topic+id,'-m',str(temp)])
-
-data_s = json.dumps(data)
-subprocess.run([cmd,'-t',topic+'combined','-m', data_s ])
+if combine:
+    ex = Config.cmd('sensors', topic + '/combined', json.dumps(combined))
+    subprocess.run(ex)
