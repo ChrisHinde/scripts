@@ -10,6 +10,13 @@ apt:
 
 memory:
   topic: 'stats/memory'
+  unit: 'M'
   combine: False
   pub_used_ratio: True
   pub_used_percentage: True
+diskusage:
+  topic: 'stats/filesystem'
+  ignore: ['tmpfs','efivarfs', '/boot/efi'] # default: None
+  combine: True
+  output_pure: False
+  output_bytes: True

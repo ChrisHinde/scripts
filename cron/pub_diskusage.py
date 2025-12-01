@@ -4,16 +4,17 @@ import subprocess
 import json
 import re
 
-pub_individually = False
+from config import Config
+
+topic = Config.t('diskusage','stats/filesystem')
+
+output_pure = Config.v('diskusage.output_pure', False)
+output_bytes = Config.v('diskusage.output_bytes', True)
+
+ignore = Config.v('diskusage.ignore', [])
+
+combine = Config.v('diskusage.combine', True)
 combined = {}
-
-cmd = "mosquitto_pub"
-topic = "system/stats/filesystem"
-
-output_pure = False
-output_bytes = True
-
-ignore = ['tmpfs','efivarfs', '/boot/efi']
 
 if output_pure:
     unit = 'h'
@@ -31,12 +32,12 @@ if output_pure:
 
             data = { 'size': grps[1], 'used': grps[2], 'available': grps[3], 'used_perc': float(grps[4][:-1]), 'mount': label, 'fs': grps[0] }
 
-            if pub_individually:
+            if not combine:
                 if label == '/':
                     label = '/ROOT'
 
-                msg = json.dumps(data)
-                subprocess.run([cmd,'-t',topic+label,'-m',msg])
+                ex = Config.cmd('memory', topic + label, json.dumps(data))  # label already has a / prefix
+                subprocess.run(ex)
             else:
                 if label == '':
                     label = '#TOTAL'
@@ -44,9 +45,9 @@ if output_pure:
                     label = '#ROOT'
                 combined[label] = data
 
-    if not pub_individually:
-        msg = json.dumps(combined)
-        subprocess.run([cmd,'-t',topic+'/combined','-m',msg])
+    if combine:
+        ex = Config.cmd('memory', topic + '/combined', json.dumps(combined))
+        subprocess.run(ex)
 
     topic = topic + '_b'
 
@@ -75,12 +76,12 @@ if output_bytes:
             perc = round(float(grps[2]) / float(grps[1]) * 100.0, 2)
             data = { 'size': sizeof_fmt(grps[1]), 'used': sizeof_fmt(grps[2]), 'available': sizeof_fmt(grps[3]), 'used_perc': perc, 'used_p': float(grps[4][:-1]), 'mount': label, 'fs': grps[0] }
 
-            if pub_individually:
+            if not combine:
                 if label == '/':
                     label = '/ROOT'
 
-                msg = json.dumps(data)
-                subprocess.run([cmd,'-t',topic+label,'-m',msg])
+                ex = Config.cmd('memory', topic + label, json.dumps(data))  # label already has a / prefix
+                subprocess.run(ex)
             else:
                 if label == '':
                     label = '#TOTAL'
@@ -88,6 +89,6 @@ if output_bytes:
                     label = '#ROOT'
                 combined[label] = data
 
-    if not pub_individually:
-        msg = json.dumps(combined)
-        subprocess.run([cmd,'-t',topic+'/combined','-m',msg])
+    if combine:
+        ex = Config.cmd('memory', topic + '/combined', json.dumps(combined))
+        subprocess.run(ex)
