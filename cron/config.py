@@ -72,6 +72,17 @@ class Config:
             return top
     def t(part, default=''):
         return Config.topic(part, default)
+    
+    def cmd(part, topic, msg, retain = None):
+        if retain is None:
+            retain = Config.v(part + '.retain', Config.v('mqtt.default.retain', False))
+
+        c = Config.v('mqtt.cmd_pub','mosquitto_pub')
+
+        args = [c, '-t', topic, '-m', msg]
+        if retain:
+            args.append('-r')
+        return args
 
 Config.init()
 

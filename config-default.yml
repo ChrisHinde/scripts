@@ -1,7 +1,9 @@
 mqtt:
   prefix: 'system/'
   cmd_pub: 'mosquitto_pub' # 'mosquitto.pub'
+
 apt:
-  topic: 'upates/apt'
+  topic: 'updates/apt'
   retain: True
   run_update: False
+  force_no_update: True

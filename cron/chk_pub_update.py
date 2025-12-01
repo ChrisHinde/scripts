@@ -5,11 +5,10 @@ import subprocess
 import os, sys
 import datetime, time
 
-from config import Config
-
 debug = False
 
-cmd = Config.v('mqtt.cmd_pub','mosquitto_pub')
+from config import Config
+
 topic = Config.t('apt','updates/apt') + '/'
 
 dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
@@ -17,8 +16,6 @@ dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
 update_apt = Config.v('apt.run_update', False)
 force_no_upd = Config.v('apt.force_no_update', True)
 output_upd = False
-
-retain = Config.v('apt.retain', True)
 
 if os.geteuid() == 0 and not force_no_upd:
     update_apt = True
@@ -57,16 +54,14 @@ else:
     chk = subprocess.run(proc, capture_output=True, text=True)
     reg = chk.stdout.strip()
 
-ex = [cmd,'-t',topic+'regular','-m',reg]
-if retain:
-    ex.append('-r')
+ex = Config.cmd('apt', topic + 'regular', reg)
 if debug:
     print(ex)
 
 subprocess.run(ex)
 
 if sec is not None:
-    ex = [cmd,'-t',topic+'security','-m',sec]
-    if retain:
-        ex.append('-r')
+    ex = Config.cmd('apt', topic + 'security', sec)
+    if debug:
+        print(ex)
     subprocess.run(ex)
