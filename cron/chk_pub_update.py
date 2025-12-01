@@ -9,7 +9,7 @@ from config import Config
 
 debug = False
 
-cmd = "mosquitto_pub"
+cmd = Config.v('mqtt.cmd_pub','mosquitto_pub')
 topic = Config.t('apt','updates/apt') + '/'
 
 dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'

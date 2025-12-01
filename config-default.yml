@@ -1,5 +1,6 @@
 mqtt:
   prefix: 'system/'
+  cmd_pub: 'mosquitto_pub' # 'mosquitto.pub'
 apt:
   topic: 'upates/apt'
   retain: True
