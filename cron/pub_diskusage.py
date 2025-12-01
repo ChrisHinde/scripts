@@ -40,9 +40,9 @@ if output_pure:
                 subprocess.run(ex)
             else:
                 if label == '':
-                    label = '#TOTAL'
+                    label = '_TOTAL'
                 elif label == '/':
-                    label = '#ROOT'
+                    label = '_ROOT'
                 combined[label] = data
 
     if combine:
