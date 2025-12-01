@@ -7,3 +7,9 @@ apt:
   retain: True
   run_update: False
   force_no_update: True
+
+memory:
+  topic: 'stats/memory'
+  combine: False
+  pub_used_ratio: True
+  pub_used_percentage: True

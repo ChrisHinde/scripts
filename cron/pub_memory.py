@@ -4,10 +4,17 @@ import subprocess
 import json
 import re
 
-cmd = "mosquitto_pub"
-topic = "system/stats/memory/"
+from config import Config
 
-unit = 'M'
+topic = Config.t('memory','stats/memory')
+
+unit = Config.v('memory.unit', 'M')
+pub_ratio = Config.v('memory.pub_used_ratio', True)
+pub_perc = Config.v('memory.pub_used_percentage', True)
+combine = Config.v('memory.combine', False)
+combined = {}
+
+retain = Config.v('memory.retain', False)
 
 mem = subprocess.run(['free','-' + unit.lower()], capture_output=True, text=True)
 
@@ -18,13 +25,22 @@ for line in mem.stdout.splitlines():
         label = grps[0][:-1].lower()
         
         data = { 'total': int(grps[1]), 'used': int(grps[2]), 'free': int(grps[3]), 'unit': unit }
-        data['used_ratio'] = round(data['used'] / data['total'], 5)
-        data['used_perc'] = round(data['used_ratio'] * 100, 1)
-        
+        if pub_ratio:
+            data['used_ratio'] = round(data['used'] / data['total'], 5)
+        if pub_perc:
+            data['used_perc'] = round(data['used_ratio'] * 100, 1)
+
         if label == 'mem':
             data['shared'] = int(grps[4])
             data['buff'] = int(grps[5])
             data['available'] = int(grps[6])
 
-        msg = json.dumps(data)
-        subprocess.run([cmd,'-t',topic+label,'-m',msg])
+        if combine:
+            combined[label] = data
+        else:
+            ex = Config.cmd('memory', topic + '/' + label, json.dumps(data))
+            subprocess.run(ex)
+
+if combined:
+    ex = Config.cmd('memory', topic, json.dumps(data))
+    subprocess.run(ex)
