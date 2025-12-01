@@ -1,10 +1,15 @@
 #!/usr/local/bin/pyth
 
 import subprocess
+import json
 import re
+
+pub_individually = False
 
 cmd = "mosquitto_pub"
 topic = "system/sensors/temperatures/"
+
+data = {}
 
 sens = subprocess.run(['sensors'], capture_output=True, text=True)
 
@@ -17,4 +22,10 @@ for line in sens.stdout.splitlines():
 
         id = re.sub(r'(\s+[id]*\s?)', '_', id)
 
-        subprocess.run([cmd,'-t',topic+id,'-m',str(temp)])
+        data[id] = temp
+
+        if pub_individually:
+            subprocess.run([cmd,'-t',topic+id,'-m',str(temp)])
+
+data_s = json.dumps(data)
+subprocess.run([cmd,'-t',topic+'combined','-m', data_s ])
