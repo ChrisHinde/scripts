@@ -1,0 +1,6 @@
+mqtt:
+  prefix: 'system/'
+apt:
+  topic: 'upates/apt'
+  retain: True
+  run_update: False
