@@ -13,13 +13,14 @@ sec = None
 dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
 
 update_apt = False
+force_no_upd = True
 output_upd = False
 
 retain = True
 
 retain_flag = '-r' if retain else ''
 
-if os.geteuid() == 0:
+if os.geteuid() == 0 and not force_no_upd:
     update_apt = True
 
 if len(sys.argv) > 1:
