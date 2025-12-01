@@ -14,9 +14,16 @@ memory:
   combine: False
   pub_used_ratio: True
   pub_used_percentage: True
+
 diskusage:
   topic: 'stats/filesystem'
   ignore: ['tmpfs','efivarfs', '/boot/efi'] # default: None
   combine: True
   output_pure: False
   output_bytes: True
+
+uptime:
+  uptime:
+    topic: 'stats/uptime'
+  usage:
+    topic: 'stats/usage'

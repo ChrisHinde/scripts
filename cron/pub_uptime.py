@@ -4,9 +4,10 @@ import subprocess
 import json
 import re
 
-cmd = "mosquitto_pub"
-topic_usg = "system/stats/usage"
-topic_upt = "system/stats/uptime"
+from config import Config
+
+topic_usg = Config.t('uptime.usage','stats/usage')
+topic_upt = Config.t('uptime.uptime','stats/uptime')
 
 up = subprocess.run(['uptime'], capture_output=True, text=True)
 
@@ -18,11 +19,11 @@ if u is not None:
     upt = { 'uptime': grps[0].replace('  ',' '), 'users': grps[1] }
     usg = { '1min': float(grps[2]), '5min': float(grps[3]), '15min': float(grps[4]) }
 
-    msg = json.dumps(usg)
-    subprocess.run([cmd,'-t',topic_usg,'-m',msg])
+    ex = Config.cmd('uptime', topic_upt, json.dumps(upt))
+    subprocess.run(ex)
 
-    msg = json.dumps(upt)
-    subprocess.run([cmd,'-t',topic_upt,'-m',msg])
+    ex = Config.cmd('uptime', topic_usg, json.dumps(usg))
+    subprocess.run(ex)
 else:
     print("Uptime ERROR")
     exit(1)
