@@ -7,6 +7,10 @@ import datetime, time
 
 cmd = "mosquitto_pub"
 topic = "system/updates/apt/"
+reg = 0
+sec = None
+
+dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
 
 update_apt = False
 output_upd = False
@@ -21,6 +25,10 @@ if os.geteuid() == 0:
 if len(sys.argv) > 1:
     if sys.argv[1] == '--dont-update':
         update_apt = False
+    if sys.argv[1] == '--update':
+        update_apt = True
+    if sys.argv[1] == '-u':
+        update_apt = True
     if sys.argv[1] == '-v':
         output_upd = True
 
@@ -34,9 +42,18 @@ if update_apt:
     time.tzset()
     subprocess.run([cmd,'-t',topic+'last_updated','-m',str(datetime.datetime.now()), retain_flag])
 
-chk = subprocess.run(['/usr/lib/update-notifier/apt-check'], capture_output=True, text=True)
+proc = '/usr/lib/update-notifier/apt-check'
 
-(reg,sec) = chk.stderr.split(';')
+if os.path.isfile(proc):
+    chk = subprocess.run(proc, capture_output=True, text=True)
+    (reg,sec) = chk.stderr.split(';')
+else:
+    proc = dir_path + 'get-upd.sh'
+    chk = subprocess.run(proc, capture_output=True, text=True)
+    reg = chk.stdout.strip()
+
 
 subprocess.run([cmd,'-t',topic+'regular','-m',reg, retain_flag])
-subprocess.run([cmd,'-t',topic+'security','-m',sec, retain_flag])
+
+if sec is not None:
+    subprocess.run([cmd,'-t',topic+'security','-m',sec, retain_flag])
