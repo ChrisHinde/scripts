@@ -18,6 +18,8 @@ for line in mem.stdout.splitlines():
         label = grps[0][:-1].lower()
         
         data = { 'total': int(grps[1]), 'used': int(grps[2]), 'free': int(grps[3]), 'unit': unit }
+        data['used_ratio'] = round(data['used'] / data['total'], 5)
+        data['used_perc'] = round(data['used_ratio'] * 100, 1)
         
         if label == 'mem':
             data['shared'] = int(grps[4])
