@@ -42,15 +42,29 @@ class Config:
                 exit()
 
     def _find(path, obj):
+        if not isinstance(obj, dict):
+            if debug:
+                print("[Config::_find] Given object to look in is not valid!")
+            return None
+
         keys = path.split('.')
         rv = obj
+        last_key = '/'
+
         for key in keys:
-            if key in rv:
+            if not isinstance(rv, dict):
+                if debug:
+                    print("[Config::_find] Looking for '", key, "' but '", last_key, "' isn't a dict, can't go further! [path='",path,"']", sep='')
+                return None
+            elif key in rv:
                 rv = rv[key]
             else:
                 if debug:
-                    print("Couldn't find the key for", path)
+                    print("[Config::_find] Couldn't find '", key, "' [path='", path, "']", sep='')
                 return None
+
+            last_key = key
+
         return rv
 
     def get(path, default=None):
@@ -93,6 +107,17 @@ if __name__ == "__main__":
         print("Using", Config.conf_file)
         print(Config.config)
 
+    print("\nFind MQTT prefix value:")
     print(Config.v('mqtt.prefix', 'mqtt_test'))
+    print("\nFind MQTT prefix topic:")
+    print(Config.t('mqtt.prefix', 'mqtt_topic_test'))
+    print("\nFind apt topic:")
     print(Config.t('apt', 'apt_topic_test'))
+    print("\nFind non existing topic:")
     print(Config.t('#NULL#', 'null_topic_test'))
+    print("\nFind non existing apt topic:")
+    print(Config.t('apt.does_not_exist', 'apt_nothing_topic_test'))
+    print("\nFind non existing mqtt value:")
+    print(Config.v('mqtt.does_not_exist', 'mqtt_nothing_test'))
+    print("\nFind non existing mqtt sub value:")
+    print(Config.v('mqtt.cmd_pub.does_not_exist', 'mqtt_nothing_sub_test'))
