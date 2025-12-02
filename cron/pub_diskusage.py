@@ -36,7 +36,7 @@ if output_pure:
                 if label == '/':
                     label = '/ROOT'
 
-                ex = Config.cmd('memory', topic + label, json.dumps(data))  # label already has a / prefix
+                ex = Config.cmd('diskusage', topic + label, json.dumps(data))  # label already has a / prefix
                 subprocess.run(ex)
             else:
                 if label == '':
@@ -46,7 +46,7 @@ if output_pure:
                 combined[label] = data
 
     if combine:
-        ex = Config.cmd('memory', topic + '/combined', json.dumps(combined))
+        ex = Config.cmd('diskusage', topic + '/combined', json.dumps(combined))
         subprocess.run(ex)
 
     topic = topic + '_b'
@@ -80,7 +80,7 @@ if output_bytes:
                 if label == '/':
                     label = '/ROOT'
 
-                ex = Config.cmd('memory', topic + label, json.dumps(data))  # label already has a / prefix
+                ex = Config.cmd('diskusage', topic + label, json.dumps(data))  # label already has a / prefix
                 subprocess.run(ex)
             else:
                 if label == '':
@@ -90,5 +90,5 @@ if output_bytes:
                 combined[label] = data
 
     if combine:
-        ex = Config.cmd('memory', topic + '/combined', json.dumps(combined))
+        ex = Config.cmd('diskusage', topic + '/combined', json.dumps(combined))
         subprocess.run(ex)

@@ -40,7 +40,10 @@ if update_apt:
 
     os.environ['TZ'] = 'Europe/Stockholm'
     time.tzset()
-    subprocess.run([cmd,'-t',topic+'last_updated','-m',str(datetime.datetime.now()), retain_flag])
+    ex = Config.cmd('apt', topic + 'last_updated', str(datetime.datetime.now()))
+    if debug:
+        print(ex)
+    subprocess.run(ex)
 
 reg = 0
 sec = None
