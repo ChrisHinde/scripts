@@ -5,6 +5,7 @@ mqtt:
 apt:
   topic: 'updates/apt'
   retain: True
+  combine: both
   run_update: False
   force_no_update: True
 
