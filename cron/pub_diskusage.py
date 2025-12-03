@@ -31,12 +31,8 @@ def get_label(label, fs):
     if label == '' or fs == 'total':
         label = '_TOTAL'
 
-    if combine:
-        if label == '/':
-            label = '_ROOT'
-    else:
-        if label == '/':
-            label = 'ROOT'
+    if label == '/':
+        label = '_ROOT' # if combine else 'ROOT'
 
     if strip_path and '/' in label:
         _,label = label.rsplit('/',1)
