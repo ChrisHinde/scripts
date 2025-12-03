@@ -14,7 +14,35 @@ output_bytes = Config.v('diskusage.output_bytes', True)
 ignore = Config.v('diskusage.ignore', [])
 
 combine = Config.v('diskusage.combine', True)
+combined_topic = Config.v('diskusage.combined_topic', '') # '/combined'
 combined = {}
+
+labels = Config.v('diskusage.labels', {})
+strip_path = Config.v('diskusage.strip_path', False)
+
+def get_label(label, fs):
+    global combine, labels, strip_path
+
+    if label in labels:
+        label = labels[label]
+    elif fs in labels:
+        label = labels[fs]
+
+    if label == '' or fs == 'total':
+        label = '_TOTAL'
+
+    if combine:
+        if label == '/':
+            label = '_ROOT'
+    else:
+        if label == '/':
+            label = 'ROOT'
+
+    if strip_path and '/' in label:
+        _,label = label.rsplit('/',1)
+
+    return label
+
 
 if output_pure:
     unit = 'h'
@@ -25,28 +53,26 @@ if output_pure:
 
         if m is not None:
             grps = m.groups()
-            label = grps[5]
+            mount = grps[5]
+            fs = grps[0]
 
-            if (label in ignore) or (grps[0] in ignore):
+            if (mount in ignore) or (fs in ignore):
                 continue
 
-            data = { 'size': grps[1], 'used': grps[2], 'available': grps[3], 'used_perc': float(grps[4][:-1]), 'mount': label, 'fs': grps[0] }
+            label = get_label(mount, fs)
+
+            data = { 'size': grps[1], 'used': grps[2], 'available': grps[3],
+                     'used_perc': float(grps[4][:-1]), 'mount': mount, 'fs': fs, 'label': label }
 
             if not combine:
-                if label == '/':
-                    label = '/ROOT'
-
-                ex = Config.cmd('diskusage', topic + label, json.dumps(data))  # label already has a / prefix
+                t_label = '' if label == '_TOTAL' else '/' + label
+                ex = Config.cmd('diskusage', topic + t_label, json.dumps(data))  # label already has a / prefix
                 subprocess.run(ex)
             else:
-                if label == '':
-                    label = '_TOTAL'
-                elif label == '/':
-                    label = '_ROOT'
                 combined[label] = data
 
     if combine:
-        ex = Config.cmd('diskusage', topic + '/combined', json.dumps(combined))
+        ex = Config.cmd('diskusage', topic + combined_topic, json.dumps(combined))
         subprocess.run(ex)
 
     topic = topic + '_b'
@@ -68,27 +94,25 @@ if output_bytes:
 
         if m is not None:
             grps = m.groups()
-            label = grps[5]
+            mount = grps[5]
+            fs = grps[0]
 
-            if (label in ignore) or (grps[0] in ignore):
+            if (mount in ignore) or (fs in ignore):
                 continue
 
+            label = get_label(mount, fs)
+
             perc = round(float(grps[2]) / float(grps[1]) * 100.0, 2)
-            data = { 'size': sizeof_fmt(grps[1]), 'used': sizeof_fmt(grps[2]), 'available': sizeof_fmt(grps[3]), 'used_perc': perc, 'used_p': float(grps[4][:-1]), 'mount': label, 'fs': grps[0] }
+            data = { 'size': sizeof_fmt(grps[1]), 'used': sizeof_fmt(grps[2]), 'available': sizeof_fmt(grps[3]),
+                     'used_perc': perc, 'used_p': float(grps[4][:-1]), 'mount': mount, 'fs': fs, 'label': label }
 
             if not combine:
-                if label == '/':
-                    label = '/ROOT'
-
-                ex = Config.cmd('diskusage', topic + label, json.dumps(data))  # label already has a / prefix
+                t_label = '' if label == '_TOTAL' else '/' + label
+                ex = Config.cmd('diskusage', topic + t_label, json.dumps(data))  # label already has a / prefix
                 subprocess.run(ex)
             else:
-                if label == '':
-                    label = '_TOTAL'
-                elif label == '/':
-                    label = '_ROOT'
                 combined[label] = data
 
     if combine:
-        ex = Config.cmd('diskusage', topic + '/combined', json.dumps(combined))
+        ex = Config.cmd('diskusage', topic + combined_topic, json.dumps(combined))
         subprocess.run(ex)

@@ -17,8 +17,13 @@ memory:
 
 diskusage:
   topic: 'stats/filesystem'
-  ignore: ['tmpfs','efivarfs', '/boot/efi'] # default: None
+  ignore: ['tmpfs', 'efivarfs', '/boot/efi'] # default: None
+  strip_path: True
+  # labels:
+  #   '/dev/sda1': 'Files'
+  #   '/mnt/XYZ': 'Media'
   combine: True
+  #combined_topic: '/combined'
   output_pure: False
   output_bytes: True
 
