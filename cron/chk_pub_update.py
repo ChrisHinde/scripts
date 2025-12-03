@@ -104,7 +104,6 @@ if combine is True or combine == 'both':
     if last_updated is not None:
         data['last_updated'] = last_updated
 
-    print(data)
     ex = Config.cmd('apt', topic[:-1], json.dumps(data))
     if debug:
         print(ex)
