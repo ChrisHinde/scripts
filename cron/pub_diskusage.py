@@ -2,9 +2,15 @@
 
 import subprocess
 import json
+import sys
 import re
 
 from config import Config
+
+debug = False
+if len(sys.argv) > 1:
+    if '-d' in sys.argv:
+        debug = True
 
 topic = Config.t('diskusage','stats/filesystem')
 
@@ -15,6 +21,8 @@ ignore = Config.v('diskusage.ignore', [])
 
 combine = Config.v('diskusage.combine', True)
 combined_topic = Config.v('diskusage.combined_topic', '') # '/combined'
+if combine == 'both' and combined_topic == '':
+    combined_topic = '/combined'
 combined = {}
 
 labels = Config.v('diskusage.labels', {})
@@ -22,6 +30,9 @@ strip_path = Config.v('diskusage.strip_path', False)
 
 def get_label(label, fs):
     global combine, labels, strip_path
+    if debug:
+        print('[GET_LABEL]', 'lbl:', label, 'fs:', fs)
+        print(labels)
 
     if label in labels:
         label = labels[label]
@@ -60,14 +71,17 @@ if output_pure:
             data = { 'size': grps[1], 'used': grps[2], 'available': grps[3],
                      'used_perc': float(grps[4][:-1]), 'mount': mount, 'fs': fs, 'label': label }
 
-            if not combine:
+            if label not in ['_TOTAL','_ROOT']:
+                label = label.lower()
+
+            if combine is False or combine == 'both':
                 t_label = '' if label == '_TOTAL' else '/' + label
                 ex = Config.cmd('diskusage', topic + t_label, json.dumps(data))  # label already has a / prefix
                 subprocess.run(ex)
-            else:
-                combined[label] = data
 
-    if combine:
+            combined[label] = data
+
+    if combine is True or combine == 'both':
         ex = Config.cmd('diskusage', topic + combined_topic, json.dumps(combined))
         subprocess.run(ex)
 
@@ -102,13 +116,19 @@ if output_bytes:
             data = { 'size': sizeof_fmt(grps[1]), 'used': sizeof_fmt(grps[2]), 'available': sizeof_fmt(grps[3]),
                      'used_perc': perc, 'used_p': float(grps[4][:-1]), 'mount': mount, 'fs': fs, 'label': label }
 
-            if not combine:
+            if label not in ['_TOTAL','_ROOT']:
+                label = label.lower()
+
+            if debug:
+                print(label, '=', data, end="\n\n")
+
+            if combine is False or combine == 'both':
                 t_label = '' if label == '_TOTAL' else '/' + label
                 ex = Config.cmd('diskusage', topic + t_label, json.dumps(data))  # label already has a / prefix
                 subprocess.run(ex)
-            else:
-                combined[label] = data
 
-    if combine:
+            combined[label] = data
+
+    if combine is True or combine == 'both':
         ex = Config.cmd('diskusage', topic + combined_topic, json.dumps(combined))
         subprocess.run(ex)
