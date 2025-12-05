@@ -16,6 +16,9 @@ dir_path = os.path.dirname(os.path.realpath(__file__)) + '/'
 update_apt = Config.v('apt.run_update', False)
 force_no_upd = Config.v('apt.force_no_update', True)
 combine = Config.v('apt.combine', False)
+combined_topic = Config.v('apt.combined_topic', '') # '/combined'
+if combine == 'both' and combined_topic == '':
+    combined_topic = '/combined'
 output_upd = False
 
 if os.geteuid() == 0 and not force_no_upd:
@@ -109,7 +112,7 @@ if combine is True or combine == 'both':
     if last_updated is not None:
         data['last_updated'] = last_updated
 
-    ex = Config.cmd('apt', topic[:-1], json.dumps(data))
+    ex = Config.cmd('apt', topic[:-1] + combined_topic, json.dumps(data))
     if debug:
         print(ex)
 
