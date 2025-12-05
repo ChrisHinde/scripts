@@ -39,6 +39,9 @@ packages = None
 last_updated = None
 
 if update_apt:
+    if debug:
+        print("Running apt update!")
+
     upd = subprocess.run(['apt','update'], capture_output=True, text=True)
     out = upd.stdout
 
@@ -62,6 +65,8 @@ if update_apt:
         if debug:
             print(ex)
         subprocess.run(ex)
+elif debug:
+    print("Not running apt update!")
 
 proc = '/usr/lib/update-notifier/apt-check'
 
@@ -94,12 +99,12 @@ if combine is False or combine == 'both':
 
 if combine is True or combine == 'both':
     data = {
-        'regular': reg
+        'regular': int(reg)
     }
     if sec is not None:
-        data['security'] = sec
+        data['security'] = int(sec)
     if packages is not None:
-        data['packages'] = packages
+        data['packages'] = int(packages)
     
     if last_updated is not None:
         data['last_updated'] = last_updated
